@@ -156,9 +156,9 @@ function sendMessage(){
                 content: messageContent
             }
             socket.emit('chat:message' , message);
-        }else if(messageContent.split(" ").length == 2 && messageContent.split(" ")[1] && messageContent.split(" ")[0]=='!p'){
+        }else if(messageContent.split(" ").length == 2 && messageContent.split(" ")[0]=='!p' && messageContent.split(" ")[1]){
             let temp = messageContent.split(" ")[1];
-            temp = temp.indexOf('?')==-1?`?v=${temp}`:temp
+            temp = temp.indexOf('?v=')==-1?`?v=${temp}`:temp
             socket.emit('music:url' , temp);
         }
         inputMessage[0].value = '';
