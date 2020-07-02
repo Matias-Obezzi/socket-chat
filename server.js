@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 80 ;
+const PORT = process.env.PORT || 3000 ;
 
 const path = require('path');
 const http = require('http');
@@ -48,7 +48,7 @@ io.on('connection', socket => {
 
     socket.on('chat:typing', (state)=>{
         const user = getCurrentUser(socket.id);
-        io.to(user.room).emit('chat:typing', `${state?user.username + ' is typing' : ''}`);
+        socket.broadcast.to(user.room).emit('chat:typing', `${state?user.username + ' is typing' : ''}`);
     })
     
     socket.on('music:url', (url)=>{

@@ -27,19 +27,21 @@
         <div class="mx-auto text-center font-weight-bold">
           <div class="row mx-0 p-2">
             <!-- <div id="room" class="mr-auto my-auto"></div> -->
-            <div id="username" class="mr-auto my-auto col text-left"></div>
-            <div class="mx-auto my-auto col">
+            <div id="username" class="mr-auto my-auto col-lg-3 col-9 order-1 text-left order-lg-1"></div>
+            <div class="mx-auto my-auto col-lg col-12 order-3 order-lg-2 d-none text-center" id="music-player">
               <!-- <audio controls>
                 <source src="" type="audio/mpeg">
                 Your browser does not support the audio element.
               </audio> -->
               <div class="row mx-auto text-center">
-                <button class="btn rounded-circle p-0 bg-light text-center" id="play-stop-button"><i class="fas fa-play m-2"></i></button>
-                <p id="music-title" class="small col my-auto align-middle"></p>
+                <div class="col-5 text-right">
+                  <button class="btn rounded-circle p-0 bg-light" id="play-stop-button"><i class="fas fa-play m-2"></i></button>
+                </div>
+                <p id="music-title" class="small col my-auto align-middle col mx-0 px-0 text-left"></p>
               </div>
               <iframe id="youtube-music" width="0" height="0" class="d-none" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
-            <div class="col text-right my-auto">
+            <div class="col-lg-3 col order-2 order-lg-3 text-right my-auto">
               <a class="btn btn-outline-light ml-auto py-0 my-auto" id="users-button" data-toggle="collapse" href="#users-container" role="button" aria-expanded="false" aria-controls="users-container"><i class="fas fa-user-friends"></i></a>
             </div>
           </div>
@@ -48,10 +50,10 @@
       </div>
       <div id="message-container" class="px-2">
       </div>
-      <div id="input-menu" class="shadow fixed-bottom">
+      <div id="input-menu" class="shadow fixed-bottom bg-dark">
         <div class="px-2 pt-2 small text-light" id="users-state"></div>
         <div class="bg-dark text-center px-2 d-flex align-items-end">
-          <div class="row text-center input-group py-3 mx-auto">
+          <div class="row text-center input-group pb-3 mx-auto">
             <input type="text" class="form-control bg-transparent text-light" placeholder="New message" id="message" aria-describedby="send">
             <div class="input-group-append">
                 <button class="btn btn-outline-light" type="button" id="send"><i class="fas fa-paper-plane"></i></button>

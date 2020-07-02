@@ -6,10 +6,13 @@ var sendButton;
 var messageContainer = null;
 var usersContainer = null;
 var musicPlayer = null;
+var youtubePlayer = null;
 var musicTitle = null;
 var playStopButton = null;
 
 var musicState = false;
+var started = false;
+var lastMessage = {};
 
 var username = null;
 var userData = null;
@@ -34,18 +37,17 @@ function main(){
         usersContainer = $("#users-container");
         usersState = $("#users-state");
         messageContainer = $("#message-container");
-        musicPlayer = $("#youtube-music");
+        musicPlayer = $("#music-player");
+        youtubePlayer = $("#youtube-music");
         musicTitle = $("#music-title");
         playStopButton = $("#play-stop-button");
 
-        // messageContainer.height($(window).height() - $("#header").height() - $("#input-menu").height());
-        messageContainer.css("padding-top",$("#header").height());
-        messageContainer.css("padding-bottom",$("#input-menu").height());
+        adaptPadding();
 
         socket.on('chat:message', message=>{
             if(message.system || muted.indexOf(message.author.id)==-1){ 
                 addMessage(message);
-                messageContainer.scrollTop(0);
+                lastMessage = message;
             }else if(muted.indexOf(message.author.id)!=-1 && message.content.indexOf("left")!=-1){
                 mute(message.author.id);
             }
@@ -54,25 +56,38 @@ function main(){
             usersState[0].innerHTML = `${userTyping}`;
         })
         socket.on('music:url', songInfo=>{
+            if(!started){
+                musicPlayer.removeClass('d-none');
+                started=true;
+                adaptPadding();
+            }
             musicState = false;
-            musicPlayer[0].src = songInfo.embed;
+            youtubePlayer[0].src = songInfo.embed;
             musicTitle[0].innerHTML = songInfo.title;
             setMusic();
         })
         socket.on('music:play', songInfo=>{
             if(musicTitle[0].innerHTML==''){
-                musicPlayer[0].src = songInfo.embed;
+                youtubePlayer[0].src = songInfo.embed;
                 musicTitle[0].innerHTML = songInfo.title;
             }
             musicState = !songInfo.state;
             setMusic();
         })
         socket.on('roomUsers', usersTemp=>{
+            if(youtubePlayer[0].src){
+                let temp = {
+                    embed: youtubePlayer[0].src,
+                    state: !musicState,
+                    title: musicTitle[0].innerHTML
+                }
+                socket.emit('music:play', temp);
+            }
             addUsers(usersTemp);
         })
         socket.on('userData', userDataTemp=>{
             userData = userDataTemp;
-            userShow[0].innerHTML = `${userData.username} <small>#${userData.id}</small>`;
+            userShow[0].innerHTML = `${userData.username}`;
         })
 
         sendButton.click(()=>{
@@ -94,9 +109,9 @@ function main(){
         })
 
         playStopButton.click(()=>{
-            if(musicPlayer[0].src.length>0){
+            if(youtubePlayer[0].src.length>0){
                 let temp = {
-                    embed: musicPlayer[0].src,
+                    embed: youtubePlayer[0].src,
                     state: musicState,
                     title: musicTitle[0].innerHTML
                 }
@@ -112,12 +127,12 @@ function main(){
 
 function playStop(){
     if(musicState){
-        musicPlayer[0].src = removeURLParameter(musicPlayer[0].src, 'autoplay');
+        youtubePlayer[0].src = removeURLParameter(youtubePlayer[0].src, 'autoplay');
     }else{
         //as noted in addendum, check for querystring exitence
-        let symbol = musicPlayer[0].src.indexOf("?") > -1 ? "&" : "?";
+        let symbol = youtubePlayer[0].src.indexOf("?") > -1 ? "&" : "?";
         //modify source to autoplay and start video
-        musicPlayer[0].src += symbol + "autoplay=1";
+        youtubePlayer[0].src += symbol + "autoplay=1";
     }
 }
 
@@ -141,7 +156,7 @@ function sendMessage(){
                 content: messageContent
             }
             socket.emit('chat:message' , message);
-        }else if(messageContent.split(" ").length == 2 && messageContent.split(" ")[1]){
+        }else if(messageContent.split(" ").length == 2 && messageContent.split(" ")[1] && messageContent.split(" ")[0]=='!p'){
             let temp = messageContent.split(" ")[1];
             temp = temp.indexOf('?')==-1?`?v=${temp}`:temp
             socket.emit('music:url' , temp);
@@ -160,7 +175,7 @@ function addMessage(temp){
     let newMessage = document.createElement('div');
     newMessage.classList += "mx-0 my-2 px-1 text-center py-0" + (message.system?'':'');
     newMessage.innerHTML = `
-        ${message.system?'' :
+        ${message.system || (lastMessage.author && lastMessage.author.id == message.author.id)?'' :
             `<div class="text-left row mx-0">
                 <a class="font-weight-bold my-0" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-content="#${message.author.id}">${message.author.username}&nbsp;</a>
                 <p class="small font-italic my-auto text-right ml-auto">${message.time}</p>
@@ -173,6 +188,7 @@ function addMessage(temp){
     messageContainer.append(newMessage);
     // messageContainer.prepend(newMessage);
     $('[data-toggle="popover"]').popover(); 
+    window.scrollTo(0, document.getElementById("message-container").scrollHeight);
 }
 
 function adaptText(text){
@@ -190,7 +206,7 @@ function adaptText(text){
 function addUsers(users){
     usersContainer.empty();
     users.forEach(user => {
-        usersContainer.append(`<li class="mb-1 px-2 text-left">${user.id!==userData.id?`<button id="${user.id}" onclick="mute('${user.id}')" class="btn px-0 text-light">${muted.indexOf(user.id)==-1?'<i class="fas fa-comment"></i>':'<i class="fas fa-comment-slash"></i>'}</button>`:'<div class="text-light align-middle d-inline-block"><i class="fas fa-user-alt"></i></div>'}<p class="d-inline-block my-auto align-middle text-right py-2  ml-2">${adaptText(user.username)}</p></li>`);
+        usersContainer.append(`<li class="mb-1 p-2 text-left">${user.id!==userData.id?`<button id="${user.id}" onclick="mute('${user.id}')" class="btn px-0 text-light">${muted.indexOf(user.id)==-1?'<i class="fas fa-comment"></i>':'<i class="fas fa-comment-slash"></i>'}</button>`:'<div class="text-light align-middle d-inline-block"><i class="fas fa-user-alt"></i></div>'}<p class="d-inline-block my-auto align-middle text-right ml-2 my-auto">${adaptText(user.username)}</p> <p class="my-0 align-bottom text-italic font-weight-normal d-inline-block">#endregion${user.id}</p></li>`);
     })
 }
 
@@ -234,4 +250,10 @@ function removeURLParameter(url, parameter) {
         return urlparts[0] + (pars.length > 0 ? '?' + pars.join('&') : '');
     }
     return url;
+}
+
+function adaptPadding(){
+    // messageContainer.height($(window).height() - $("#header").height() - $("#input-menu").height());
+    messageContainer.css("padding-top",$("#header").height());
+    messageContainer.css("padding-bottom",$("#input-menu").height());
 }
