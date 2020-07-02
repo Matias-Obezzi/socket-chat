@@ -69,7 +69,15 @@ io.on('connection', socket => {
             message.content += `<b>${info?info.title:'sin nombre'}</b>`;
             io.to(user.room).emit('chat:message', message);
             io.to(user.room).emit('music:url',  songInfo);
-        }).catch(err=>console.log(err))
+        }).catch(err=>{
+            var songInfo={
+                embed: urlEmbed,
+                title: 'canción sin nombre'
+            }
+            message.content += `<b>${'canción sin nombre'}</b>`;
+            io.to(user.room).emit('chat:message', message);
+            io.to(user.room).emit('music:url',  songInfo);
+        })
     })
 
     socket.on('music:play', (state)=>{
