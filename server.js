@@ -60,7 +60,7 @@ io.on('connection', socket => {
             system: true,
             content: `Playing `
         }
-        var urlEmbed = `http://www.youtube.com/embed/${videoId}`;
+        var urlEmbed = `https://www.youtube.com/embed/${videoId}`;
         ytdl.getBasicInfo(url, function(err, info){
             var songInfo={
                 embed: urlEmbed,
