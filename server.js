@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 80 ;
 
 const path = require('path');
 const http = require('http');
@@ -62,7 +62,6 @@ io.on('connection', socket => {
         }
         var urlEmbed = `http://www.youtube.com/embed/${videoId}`;
         ytdl.getBasicInfo(url, function(err, info){
-            console.log(info.title)
             var songInfo={
                 embed: urlEmbed,
                 title: info.title
@@ -70,7 +69,7 @@ io.on('connection', socket => {
             message.content += `<b>${info?info.title:'sin nombre'}</b>`;
             io.to(user.room).emit('chat:message', message);
             io.to(user.room).emit('music:url',  songInfo);
-        })
+        }).catch(err=>console.log(err))
     })
 
     socket.on('music:play', (state)=>{
