@@ -96,7 +96,7 @@ function main(){
 
         let timeout;
         inputMessage.keydown(e=>{
-            if(e.code == "NumpadEnter" || e.code=="Enter"){
+            if(e.code == "NumpadEnter" || e.code=="Enter" || e.keyCode == 13){
                 socket.emit('chat:typing', false);
                 sendMessage();
             }else if((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 97 && event.keyCode <= 122)){
